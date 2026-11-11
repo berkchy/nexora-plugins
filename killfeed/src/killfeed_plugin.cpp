@@ -134,7 +134,7 @@ const KFSprite *KFFindSprite( const std::string &name, const char *fallbackName 
 
 	const KFSprite *found = nullptr;
 	KFSprite sprite;
-	sprite.hspr = NULL;
+	sprite.hspr = 0;
 	sprite.rc = { 0, 0, 0, 0 };
 	sprite.valid = false;
 
@@ -149,7 +149,7 @@ const KFSprite *KFFindSprite( const std::string &name, const char *fallbackName 
 		std::snprintf( path, sizeof( path ), "sprites/%s.spr", list[i].szSprite );
 
 		sprite.hspr = g_eng->pfnSPR_Load( path );
-		sprite.valid = sprite.hspr != NULL;
+		sprite.valid = sprite.hspr != 0;
 		g_spriteCache[ name ] = sprite;
 		found = &g_spriteCache[ name ];
 		break;
