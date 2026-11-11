@@ -24,15 +24,19 @@ jobs:
           sudo apt-get update && sudo apt-get install -y zip >/dev/null
           ./package-plugins.sh all
 
-      - name: Smoke test (arm64)
+      - name: Smoke test (host)
         shell: bash
         run: |
           set -euo pipefail
           SDK="$PWD/sdk/include"
           INC="$PWD/include"
+          for p in killfade killfeed scoreboard2 csgohud; do
+            cmake -S "$p" -B "/tmp/host-$p" -DCMAKE_BUILD_TYPE=Release >/dev/null
+            cmake --build "/tmp/host-$p" >/dev/null
+          done
           g++ -std=gnu++17 -o /tmp/smoketest tools/smoketest.cpp -I"$INC" \
             $(for d in engine common public pm_shared game_shared dlls cl_dll cl_dll/include; do printf -- "-I$SDK/$d "; done) -ldl
-          /tmp/smoketest dist/build/arm64-v8a/killfade/*.so dist/build/arm64-v8a/killfeed/*.so dist/build/arm64-v8a/scoreboard2/*.so dist/build/arm64-v8a/csgohud/*.so
+          /tmp/smoketest /tmp/host-killfade/libkillfade_nexora_amd64.so /tmp/host-killfeed/libkillfeed_nexora_amd64.so /tmp/host-scoreboard2/libscoreboard2_nexora_amd64.so /tmp/host-csgohud/libcsgohud_nexora_amd64.so
 
       - name: Release (continuous)
         env:

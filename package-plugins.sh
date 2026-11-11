@@ -36,7 +36,7 @@ _build_one()
 
 	if [ -n "${ANDROID_NDK_HOME:-}" ] || [ -n "${ANDROID_HOME:-}" ]; then
 		NDK="${ANDROID_NDK_HOME:-$(ls -d "$ANDROID_HOME"/ndk/* | head -1)}"
-		TOOLCHAIN="-DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$_abi -DANDROID_PLATFORM=android-21 -DANDROID_STL=c++_shared"
+		TOOLCHAIN="-DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=$_abi -DANDROID_PLATFORM=android-21 -DANDROID_STL=c++_static"
 	else
 		TOOLCHAIN=""
 	fi
