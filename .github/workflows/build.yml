@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Also publish a versioned release with this tag (e.g. v1.0.0). Empty = rolling continuous only.'
+        required: false
+        default: ''
 
 jobs:
   bundle:
@@ -36,6 +41,26 @@ jobs:
         run: |
           set -euo pipefail
           if ! gh release view continuous >/dev/null 2>&1; then
-            gh release create continuous --title "Nexora Plugins" --notes "Rolling plugin bundle (APK custom libraries)."
+            gh release create continuous --title "Nexora Plugins" --notes "Rolling plugin bundles and individual plugin libraries."
           fi
-          gh release upload continuous --clobber dist/nexora-plugins-bundle.zip dist/nexora-plugins-bundle-armeabi-v7a.zip
+          gh release upload continuous --clobber \
+            dist/nexora-plugins-bundle.zip \
+            dist/nexora-plugins-bundle-armeabi-v7a.zip \
+            dist/build/*/*/lib*.so
+
+      - name: Release (versioned)
+        if: github.event_name == 'workflow_dispatch' && inputs.version != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.version }}"
+          ASSETS="dist/nexora-plugins-bundle.zip dist/nexora-plugins-bundle-armeabi-v7a.zip dist/build/*/*/lib*.so"
+          git tag "$TAG"
+          git push origin "$TAG"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" --clobber $ASSETS
+          else
+            gh release create "$TAG" --title "Nexora Plugins $TAG" --notes "Plugin release $TAG." $ASSETS
+          fi
