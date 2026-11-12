@@ -46,6 +46,23 @@ Killfeed is independent of `hud_style`; it replaces the classic death notice ent
 | `hud_killfeed_bgalpha` | `110` | `0-255` | Row background opacity. |
 | `hud_killfeed_rowspacing` | `4` | `0-32` | Extra vertical gap between rows, in 480p HUD units. |
 
+## Centerprint
+
+Replaces the classic center-screen messages ("Terrorist Win", "Bomb Planted", ...) with a smooth fade-in/fade-out animation. It is independent of `hud_style`. When `hud_centerprint 0` is set, the classic center print returns.
+
+| Cvar | Default | Values | Description |
+| --- | --- | --- | --- |
+| `hud_centerprint` | `1` | `0`, `1` | Enable/disable the centerprint plugin entirely (classic center print returns when `0`). |
+| `hud_centerprint_fadein` | `0.25` | seconds | Fade-in duration. |
+| `hud_centerprint_fadeout` | `0.5` | seconds | Fade-out duration. |
+| `hud_centerprint_holdtime` | `4` | seconds | How long the message stays fully visible. |
+| `hud_centerprint_color` | `"255 214 0"` | `"r g b"` | Text color. |
+| `hud_centerprint_alpha` | `255` | `0-255` | Text brightness/opacity. |
+| `hud_centerprint_yfract` | `0.333` | `0-1` | Vertical position as a fraction of screen height. |
+| `hud_centerprint_bg` | `0` | `0`, `1` | Draw a background panel behind the text. |
+| `hud_centerprint_bgcolor` | `"0 0 0"` | `"r g b"` | Background panel color. |
+| `hud_centerprint_bgalpha` | `140` | `0-255` | Background panel opacity. |
+
 ## Killfade
 
 A `ScreenFade`-based screen color effect. It only triggers on local player kills; it does not trigger on suicide, teamkill, or non-player kills. It works independently of `hud_style`.
@@ -94,4 +111,15 @@ hud_killfade_fxtime 0.25
 hud_killfade_holdtime 0.12
 hud_killfade_color "255 255 255"
 hud_killfade_alpha 70
+
+hud_centerprint 1
+hud_centerprint_fadein 0.25
+hud_centerprint_fadeout 0.5
+hud_centerprint_holdtime 4
+hud_centerprint_color "255 214 0"
+hud_centerprint_alpha 255
+hud_centerprint_yfract 0.333
+hud_centerprint_bg 0
+hud_centerprint_bgcolor "0 0 0"
+hud_centerprint_bgalpha 140
 ```

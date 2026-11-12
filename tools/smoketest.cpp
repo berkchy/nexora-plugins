@@ -316,7 +316,7 @@ static const char *HookName( int id )
 		"PLAYER_MOVE_INIT", "PLAYER_MOVE", "CREATE_MOVE", "FRAME",
 		"PAINT_HUD", "UPDATE_CLIENT_DATA", "PROCESS_PLAYER_STATE", "ADD_ENTITY",
 		"CREATE_ENTITIES", "IN_COMMANDS", "DEATHMSG", "HUD_ELEMENT_DRAW",
-		"NETMSG", "SCOREBOARD_TOGGLE", "AMMO_INFO",
+		"NETMSG", "SCOREBOARD_TOGGLE", "AMMO_INFO", "CENTERPRINT",
 	};
 
 	return ( id >= 0 && id < NEXORA_HOOK_COUNT ) ? names[id] : "?";
@@ -517,6 +517,15 @@ static void TestPlugin( const char *path )
 	ammoArgs.weapon_name = const_cast<char *>( "ak47" );
 
 	FireHook( NEXORA_HOOK_AMMO_INFO, &ammoArgs );
+
+	// center print message with veto
+	nexora_centerprint_args_t centerprintArgs { const_cast<char *>( "TERRORISTS WIN" ), 1 };
+	FireHook( NEXORA_HOOK_CENTERPRINT, &centerprintArgs );
+	std::printf( "  centerprint veto: allow=%d\n", centerprintArgs.allow );
+
+	nexora_redraw_args_t cpRedraw { g_mockTime + 0.1f, 0 };
+	FireHook( NEXORA_HOOK_PAINT_HUD, &cpRedraw );
+	FireHook( NEXORA_HOOK_PAINT_HUD, &cpRedraw );
 
 	// scoreboard visible + hidden
 	nexora_scoreboard_args_t toggleArgs { 1 };

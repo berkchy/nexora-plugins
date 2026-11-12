@@ -8,6 +8,7 @@ The client (`cs16-client`) is kept vanilla; all custom features are plugins.
 
 ```
 include/nexora/nexora_plugin.h   # vendored ABI header (sync from cs16-client/public/nexora/)
+centerprint/                      # fade-in/fade-out center print messages
 killfade/                        # ScreenFade effect on local kills
 killfeed/                        # CS:GO-style kill feed (replaces classic death notice)
 scoreboard2/                     # CS:GO stacked team scoreboard
@@ -43,7 +44,7 @@ cmake -S killfeed -B killfeed/build
 cmake --build killfeed/build
 ```
 
-Outputs: `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscoreboard2_nexora_<abi>.so`, `libcsgohud_nexora_<abi>.so` (`arm64`, `arm`, `x86`, `x86_64`).
+Outputs: `libcenterprint_nexora_<abi>.so`, `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscoreboard2_nexora_<abi>.so`, `libcsgohud_nexora_<abi>.so` (`arm64`, `arm`, `x86`, `x86_64`).
 
 ## Testing
 
@@ -51,11 +52,11 @@ Outputs: `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscore
 
 ```sh
 cmake -S killfade -B killfade/build && cmake --build killfade/build
-# repeat for killfeed, scoreboard2, csgohud
+# repeat for centerprint, killfeed, scoreboard2, csgohud
 SDK=$PWD/sdk/include && INC=$PWD/include && \
 g++ -std=gnu++17 -o /tmp/smoketest tools/smoketest.cpp -I$INC \
   $(for d in engine common public pm_shared game_shared dlls cl_dll cl_dll/include; do printf -- "-I$SDK/$d "; done) -ldl
-/tmp/smoketest killfade/build/*.so killfeed/build/*.so scoreboard2/build/*.so csgohud/build/*.so
+/tmp/smoketest centerprint/build/*.so killfade/build/*.so killfeed/build/*.so scoreboard2/build/*.so csgohud/build/*.so
 ```
 
 ## Shipping (Nexora store)

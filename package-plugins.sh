@@ -41,7 +41,7 @@ _build_one()
 		TOOLCHAIN=""
 	fi
 
-	for p in killfade killfeed scoreboard2 csgohud; do
+	for p in centerprint killfade killfeed scoreboard2 csgohud; do
 		cmake -S "$HERE/$p" -B "$WORK/$p" $TOOLCHAIN -DCMAKE_BUILD_TYPE=Release
 		cmake --build "$WORK/$p"
 		cp "$WORK/$p/lib${p}_nexora_${_tag}.so" "$STAGE/lib/$_abi/lib${p}_nexora_${_tag}.so"
@@ -49,6 +49,7 @@ _build_one()
 
 	cat > "$STAGE/bundle.json" <<EOF
 {"version":"$VER","game":"cs16client","abi":"$_abi","entries":[
+{"source":"lib/$_abi/libcenterprint_nexora_${_tag}.so","target":"lib/$_abi/libcenterprint_nexora_${_tag}.so","method":"STORED","required":true,"description":"centerprint"},
 {"source":"lib/$_abi/libkillfade_nexora_${_tag}.so","target":"lib/$_abi/libkillfade_nexora_${_tag}.so","method":"STORED","required":true,"description":"killfade"},
 {"source":"lib/$_abi/libkillfeed_nexora_${_tag}.so","target":"lib/$_abi/libkillfeed_nexora_${_tag}.so","method":"STORED","required":true,"description":"killfeed"},
 {"source":"lib/$_abi/libscoreboard2_nexora_${_tag}.so","target":"lib/$_abi/libscoreboard2_nexora_${_tag}.so","method":"STORED","required":true,"description":"scoreboard2"},
