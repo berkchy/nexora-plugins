@@ -13,7 +13,6 @@ hudpos/                           # HUD element position customization (hud_<ele
 killfade/                        # ScreenFade effect on local kills
 killfeed/                        # CS:GO-style kill feed (replaces classic death notice)
 scoreboard2/                     # CS:GO stacked team scoreboard
-csgohud/                         # CS:GO-style HUD (hud_style 1)
 sdk/                             # SDK header tree + make-sdk.sh (bundle for external devs)
 package-sdk.sh                   # builds dist/nexora-plugin-sdk.zip from a client checkout
 dist/                            # release artifacts (nexora-plugin-sdk.zip)
@@ -45,7 +44,7 @@ cmake -S killfeed -B killfeed/build
 cmake --build killfeed/build
 ```
 
-Outputs: `libcenterprint_nexora_<abi>.so`, `libhudpos_nexora_<abi>.so`, `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscoreboard2_nexora_<abi>.so`, `libcsgohud_nexora_<abi>.so` (`arm64`, `arm`, `x86`, `x86_64`).
+Outputs: `libcenterprint_nexora_<abi>.so`, `libhudpos_nexora_<abi>.so`, `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscoreboard2_nexora_<abi>.so` (`arm64`, `arm`, `x86`, `x86_64`).
 
 ## Testing
 
@@ -53,11 +52,11 @@ Outputs: `libcenterprint_nexora_<abi>.so`, `libhudpos_nexora_<abi>.so`, `libkill
 
 ```sh
 cmake -S killfade -B killfade/build && cmake --build killfade/build
-# repeat for centerprint, hudpos, killfeed, scoreboard2, csgohud
+# repeat for centerprint, hudpos, killfeed, scoreboard2
 SDK=$PWD/sdk/include && INC=$PWD/include && \
 g++ -std=gnu++17 -o /tmp/smoketest tools/smoketest.cpp -I$INC \
   $(for d in engine common public pm_shared game_shared dlls cl_dll cl_dll/include; do printf -- "-I$SDK/$d "; done) -ldl
-/tmp/smoketest centerprint/build/*.so hudpos/build/*.so killfade/build/*.so killfeed/build/*.so scoreboard2/build/*.so csgohud/build/*.so
+/tmp/smoketest centerprint/build/*.so hudpos/build/*.so killfade/build/*.so killfeed/build/*.so scoreboard2/build/*.so
 ```
 
 ## Shipping (Nexora store)

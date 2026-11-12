@@ -554,7 +554,7 @@ static void TestPlugin( const char *path )
 	FireHook( NEXORA_HOOK_PAINT_HUD, &redrawArgs2 );
 	FireHook( NEXORA_HOOK_PAINT_HUD, &redrawArgs2 );
 
-	// hide flags are respected by csgohud (HIDEHUD_ALL = 1<<2)
+	// hide flags are respected (HIDEHUD_ALL = 1<<2)
 	nexora_update_client_data_args_t hideArgs { nullptr, g_mockTime, 4 };
 	FireHook( NEXORA_HOOK_UPDATE_CLIENT_DATA, &hideArgs );
 	FireHook( NEXORA_HOOK_PAINT_HUD, &redrawArgs2 );

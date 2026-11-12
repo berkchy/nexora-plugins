@@ -2,18 +2,6 @@
 
 This file lists the custom cvars added to the CS 1.6 client.
 
-## HUD
-
-| Cvar | Default | Values | Description |
-| --- | --- | --- | --- |
-| `hud_style` | `0` | `0`, `1` | `0` classic HUD, `1` CS:GO-style HUD. |
-| `hud_csgo_scale` | `1.0` | `0.5-2.0` | Scales the CS:GO-style HUD elements. Lower values make the timer, health, armor, money, and ammo HUD smaller. |
-
-### Notes
-- With `hud_style 1`, the CS:GO HUD, killfeed, and ammo layout are active.
-- `hud_csgo_scale` only affects the CS:GO-style HUD.
-- `hud_killfade` is independent and also works with the classic HUD.
-
 ## Scoreboard
 
 | Cvar | Default | Values | Description |
@@ -30,7 +18,7 @@ This file lists the custom cvars added to the CS 1.6 client.
 
 ## HUD positions
 
-`hudpos` repositions HUD elements on both the classic HUD and the CS:GO-style HUD (`hud_style 1`). It works with the stock layout when every axis is left at `auto`.
+`hudpos` repositions HUD elements on the classic HUD. It works with the stock layout when every axis is left at `auto`.
 
 Grammar for every `hud_<element>_x` / `hud_<element>_y` cvar:
 
@@ -40,6 +28,7 @@ Grammar for every `hud_<element>_x` / `hud_<element>_y` cvar:
 | `-99999` | Hide the element entirely. |
 | positive number | Absolute position in HUD pixels from the left (`_x`) / top (`_y`) edge. |
 | negative number | Offset from the opposite edge: `_x` counts leftwards from the right edge, `_y` counts upwards from the bottom edge. E.g. `hud_timer_y "-20"` puts the timer 20px above the bottom edge. |
+| percent, e.g. `57.5%` | Position as a percentage of that axis, so it scales with any resolution/`hud_scale`. Negative percents anchor to the opposite edge just like negative pixels (e.g. `hud_timer_y "-8%"` ≈ 8% above the bottom edge). |
 
 | Cvar | Element |
 | --- | --- |
@@ -52,7 +41,7 @@ Grammar for every `hud_<element>_x` / `hud_<element>_y` cvar:
 
 ## Killfeed
 
-Killfeed is independent of `hud_style`; it replaces the classic death notice entirely unless `hud_killfeed_enable 0` is set. The fade settings below control the killfeed rows themselves; use `hud_killfade` for the screen color effect.
+Killfeed is independent; it replaces the classic death notice entirely unless `hud_killfeed_enable 0` is set. The fade settings below control the killfeed rows themselves; use `hud_killfade` for the screen color effect.
 
 | Cvar | Default | Values | Description |
 | --- | --- | --- | --- |
@@ -70,7 +59,7 @@ Killfeed is independent of `hud_style`; it replaces the classic death notice ent
 
 ## Centerprint
 
-Replaces the classic center-screen messages ("Terrorist Win", "Bomb Planted", ...) with a smooth fade-in/fade-out animation. It is independent of `hud_style`. When `hud_centerprint 0` is set, the classic center print returns.
+Replaces the classic center-screen messages ("Terrorist Win", "Bomb Planted", ...) with a smooth fade-in/fade-out animation. It is independent. When `hud_centerprint 0` is set, the classic center print returns.
 
 | Cvar | Default | Values | Description |
 | --- | --- | --- | --- |
@@ -87,7 +76,7 @@ Replaces the classic center-screen messages ("Terrorist Win", "Bomb Planted", ..
 
 ## Killfade
 
-A `ScreenFade`-based screen color effect. It only triggers on local player kills; it does not trigger on suicide, teamkill, or non-player kills. It works independently of `hud_style`.
+A `ScreenFade`-based screen color effect. It only triggers on local player kills; it does not trigger on suicide, teamkill, or non-player kills. It works independently.
 
 | Cvar | Default | Values | Description |
 | --- | --- | --- | --- |
@@ -102,9 +91,6 @@ A `ScreenFade`-based screen color effect. It only triggers on local player kills
 ## Example
 
 ```cfg
-hud_style 1
-hud_csgo_scale 1.0
-
 cl_scoreboard_style 2
 cl_scoreboard_alpha 220
 cl_scoreboard_show_money 1

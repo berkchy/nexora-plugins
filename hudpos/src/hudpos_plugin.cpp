@@ -9,6 +9,7 @@
 #include <cctype>
 #include <algorithm>
 #include <cstdlib>
+#include <cmath>
 
 namespace
 {
@@ -80,6 +81,30 @@ HpAxisKind HpParseAxis( const char *s, int screenSize, int &out )
 
 	if ( !s || !s[0] || HpEq( s, "auto" ) )
 		return HP_AUTO;
+
+	const size_t sLen = std::strlen( s );
+
+	if ( sLen > 1 && s[sLen - 1] == '%' )
+	{
+		char *end = nullptr;
+		float pct = std::strtof( s, &end );
+
+		if ( end && end == s + sLen - 1 )
+		{
+			if ( pct == -99999.0f )
+				return HP_HIDE;
+
+			float fr = pct / 100.0f;
+
+			if ( fr < 0.0f )
+				fr += 1.0f;
+
+			out = (int)std::lround( fr * (float)screenSize );
+			return HP_VALUE;
+		}
+
+		return HP_AUTO;
+	}
 
 	char *end = nullptr;
 	long v = std::strtol( s, &end, 10 );
