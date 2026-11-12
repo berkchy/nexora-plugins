@@ -316,7 +316,7 @@ static const char *HookName( int id )
 		"PLAYER_MOVE_INIT", "PLAYER_MOVE", "CREATE_MOVE", "FRAME",
 		"PAINT_HUD", "UPDATE_CLIENT_DATA", "PROCESS_PLAYER_STATE", "ADD_ENTITY",
 		"CREATE_ENTITIES", "IN_COMMANDS", "DEATHMSG", "HUD_ELEMENT_DRAW",
-		"NETMSG", "SCOREBOARD_TOGGLE", "AMMO_INFO", "CENTERPRINT",
+		"NETMSG", "SCOREBOARD_TOGGLE", "AMMO_INFO", "CENTERPRINT", "HUD_ELEMENT_POS",
 	};
 
 	return ( id >= 0 && id < NEXORA_HOOK_COUNT ) ? names[id] : "?";
@@ -517,6 +517,12 @@ static void TestPlugin( const char *path )
 	ammoArgs.weapon_name = const_cast<char *>( "ak47" );
 
 	FireHook( NEXORA_HOOK_AMMO_INFO, &ammoArgs );
+
+	nexora_hud_element_pos_args_t posArgs { const_cast<char *>( "ammo" ), 320, 240 };
+	FireHook( NEXORA_HOOK_HUD_ELEMENT_POS, &posArgs );
+
+	nexora_hud_element_pos_args_t radarArgs { const_cast<char *>( "radar" ), 1433, 40 };
+	FireHook( NEXORA_HOOK_HUD_ELEMENT_POS, &radarArgs );
 
 	// center print message with veto
 	nexora_centerprint_args_t centerprintArgs { const_cast<char *>( "TERRORISTS WIN" ), 1 };

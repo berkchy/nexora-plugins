@@ -33,13 +33,13 @@ jobs:
           set -euo pipefail
           SDK="$PWD/sdk/include"
           INC="$PWD/include"
-          for p in centerprint killfade killfeed scoreboard2 csgohud; do
+          for p in centerprint hudpos killfade killfeed scoreboard2 csgohud; do
             cmake -S "$p" -B "/tmp/host-$p" -DCMAKE_BUILD_TYPE=Release >/dev/null
             cmake --build "/tmp/host-$p" >/dev/null
           done
           g++ -std=gnu++17 -o /tmp/smoketest tools/smoketest.cpp -I"$INC" \
             $(for d in engine common public pm_shared game_shared dlls cl_dll cl_dll/include; do printf -- "-I$SDK/$d "; done) -ldl
-          /tmp/smoketest /tmp/host-centerprint/libcenterprint_nexora_amd64.so /tmp/host-killfade/libkillfade_nexora_amd64.so /tmp/host-killfeed/libkillfeed_nexora_amd64.so /tmp/host-scoreboard2/libscoreboard2_nexora_amd64.so /tmp/host-csgohud/libcsgohud_nexora_amd64.so
+          /tmp/smoketest /tmp/host-centerprint/libcenterprint_nexora_amd64.so /tmp/host-hudpos/libhudpos_nexora_amd64.so /tmp/host-killfade/libkillfade_nexora_amd64.so /tmp/host-killfeed/libkillfeed_nexora_amd64.so /tmp/host-scoreboard2/libscoreboard2_nexora_amd64.so /tmp/host-csgohud/libcsgohud_nexora_amd64.so
 
       - name: Release (continuous)
         env:

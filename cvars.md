@@ -28,6 +28,28 @@ This file lists the custom cvars added to the CS 1.6 client.
 | `cl_scoreboard_fadein` | `0.15` | seconds | Scoreboard fade-in duration. |
 | `cl_scoreboard_fadeout` | `0.18` | seconds | Scoreboard fade-out duration. |
 
+## HUD positions
+
+`hudpos` repositions HUD elements on both the classic HUD and the CS:GO-style HUD (`hud_style 1`). It works with the stock layout when every axis is left at `auto`.
+
+Grammar for every `hud_<element>_x` / `hud_<element>_y` cvar:
+
+| Value | Meaning |
+| --- | --- |
+| `auto` (or empty) | Keep the default position (this is the initial state). |
+| `-99999` | Hide the element entirely. |
+| positive number | Absolute position in HUD pixels from the left (`_x`) / top (`_y`) edge. |
+| negative number | Offset from the opposite edge: `_x` counts leftwards from the right edge, `_y` counts upwards from the bottom edge. E.g. `hud_timer_y "-20"` puts the timer 20px above the bottom edge. |
+
+| Cvar | Element |
+| --- | --- |
+| `hud_ammo_x`, `hud_ammo_y` | Ammo counter (classic and CS:GO HUD). The ammo secondary counter moves with it. |
+| `hud_timer_x`, `hud_timer_y` | Round timer. |
+| `hud_health_x`, `hud_health_y` | Health cross + value. |
+| `hud_armor_x`, `hud_armor_y` | Armor shield + value (classic HUD `battery` element). |
+| `hud_money_x`, `hud_money_y` | Money counter. |
+| `hud_radar_x`, `hud_radar_y` | Classic HUD radar (the CS:GO HUD has no radar panel; use classic mode). |
+
 ## Killfeed
 
 Killfeed is independent of `hud_style`; it replaces the classic death notice entirely unless `hud_killfeed_enable 0` is set. The fade settings below control the killfeed rows themselves; use `hud_killfade` for the screen color effect.

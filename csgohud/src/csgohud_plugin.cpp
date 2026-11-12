@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <cctype>
 #include <cmath>
 #include <string>
 #include <algorithm>
@@ -263,6 +264,78 @@ void CsDrawText( const char *text, int x, int y, int height, int r, int g, int b
 	}
 }
 
+
+struct CsAxis
+{
+	bool override;
+	bool hide;
+	int value;
+};
+
+CsAxis CsReadAxis( const cvar_t *cvar, int screen )
+{
+	CsAxis a{ false, false, 0 };
+	const char *s = cvar ? cvar->string : nullptr;
+
+	if ( !s || !s[0] )
+		return a;
+
+	if ( std::strlen( s ) == 4 && std::tolower( (unsigned char)s[0] ) == 'a' &&
+		std::tolower( (unsigned char)s[1] ) == 'u' && std::tolower( (unsigned char)s[2] ) == 't' &&
+		std::tolower( (unsigned char)s[3] ) == 'o' )
+		return a;
+
+	char *end = nullptr;
+	long v = std::strtol( s, &end, 10 );
+
+	if ( end == s )
+		return a;
+
+	if ( v == -99999 )
+	{
+		a.hide = true;
+		return a;
+	}
+
+	if ( v < 0 )
+		v += screen;
+
+	a.override = true;
+	a.value = (int)v;
+	return a;
+}
+
+const cvar_t *CsPeekCvar( const char *name )
+{
+	return ( g_eng && g_eng->pfnGetCvarPointer ) ? g_eng->pfnGetCvarPointer( name ) : nullptr;
+}
+
+// Applies hud_<element>_x / hud_<element>_y to the given anchor position.
+// Returns true if the element should be hidden (-99999 on either axis).
+// Sets custom=true when any axis was overridden with a concrete value.
+bool CsElementPos( const char *element, int screenWidth, int screenHeight,
+	int &x, int &y, bool &custom )
+{
+	char nameX[32];
+	char nameY[32];
+
+	std::snprintf( nameX, sizeof( nameX ), "hud_%s_x", element );
+	std::snprintf( nameY, sizeof( nameY ), "hud_%s_y", element );
+
+	const CsAxis ax = CsReadAxis( CsPeekCvar( nameX ), screenWidth );
+	const CsAxis ay = CsReadAxis( CsPeekCvar( nameY ), screenHeight );
+
+	if ( ax.override )
+		x = ax.value;
+
+	if ( ay.override )
+		y = ay.value;
+
+	custom = ax.override || ay.override;
+
+	return ax.hide || ay.hide;
+}
+
 int FindLocalIdx()
 {
 	if ( g_localIdx )
@@ -341,23 +414,58 @@ void CsDrawHud()
 		blue = 104;
 	}
 
-	const int healthX = pad;
+	int healthX = pad;
+	int healthDrawY = contentBottom - numberHeight;
+	bool healthCustom = false;
+	const bool hideHealth = CsElementPos( "health", screenWidth, screenHeight, healthX, healthDrawY, healthCustom );
+
 	const int healthTextX = healthX + iconSize + textGap;
 	const int healthWidth = CsTextWidth( healthBuffer, numberHeight );
-	const int armorX = healthTextX + healthWidth + (int)( 18 * scale );
+
+	int armorX = healthTextX + healthWidth + (int)( 18 * scale );
+	int armorDrawY = contentBottom - numberHeight;
+	bool armorCustom = false;
+	const bool hideArmor = CsElementPos( "armor", screenWidth, screenHeight, armorX, armorDrawY, armorCustom );
+
 	const int armorTextX = armorX + iconSize + textGap;
 	const int armorWidth = CsTextWidth( armorBuffer, numberHeight );
 	const int armorEnd = armorTextX + armorWidth;
-	const int panelRight = armorEnd + panelPadX;
 
-	g_eng->pfnFillRGBABlend( 0, panelTop, panelRight, panelHeight, 0, 0, 0, 165 );
+	if ( !( hideHealth && hideArmor ) )
+	{
+		if ( !healthCustom && !armorCustom )
+		{
+			g_eng->pfnFillRGBABlend( 0, panelTop, armorEnd + panelPadX, panelHeight, 0, 0, 0, 165 );
+		}
+		else
+		{
+			if ( !hideHealth )
+			{
+				g_eng->pfnFillRGBABlend( healthX - panelPadX, panelTop,
+					healthTextX + healthWidth - ( healthX - panelPadX ) + panelPadX, panelHeight, 0, 0, 0, 165 );
+			}
+			if ( !hideArmor )
+			{
+				g_eng->pfnFillRGBABlend( armorX - panelPadX, panelTop,
+					armorTextX + armorWidth - ( armorX - panelPadX ) + panelPadX, panelHeight, 0, 0, 0, 165 );
+			}
+		}
+	}
 
-	const int iconY = contentBottom - numberHeight + ( numberHeight - iconSize ) / 2;
+	const int healthIconY = healthDrawY + ( numberHeight - iconSize ) / 2;
+	const int armorIconY = armorDrawY + ( numberHeight - iconSize ) / 2;
 
-	CsDrawHealthCross( healthX, iconY, iconSize, red, green, blue, 245 );
-	CsDrawText( healthBuffer, healthTextX, contentBottom - numberHeight, numberHeight, red, green, blue, 245 );
-	CsDrawArmorShield( armorX, iconY, iconSize, 238, 239, 240, 240 );
-	CsDrawText( armorBuffer, armorTextX, contentBottom - numberHeight, numberHeight, 238, 239, 240, 240 );
+	if ( !hideHealth )
+	{
+		CsDrawHealthCross( healthX, healthIconY, iconSize, red, green, blue, 245 );
+		CsDrawText( healthBuffer, healthTextX, healthDrawY, numberHeight, red, green, blue, 245 );
+	}
+
+	if ( !hideArmor )
+	{
+		CsDrawArmorShield( armorX, armorIconY, iconSize, 238, 239, 240, 240 );
+		CsDrawText( armorBuffer, armorTextX, armorDrawY, numberHeight, 238, 239, 240, 240 );
+	}
 	}
 
 	const bool showMoney = !hideAll && !( g_hideFlags & HIDEHUD_MONEY );
@@ -366,16 +474,24 @@ void CsDrawHud()
 
 	if ( showMoney )
 	{
-	const int moneyTextX = pad + iconSize + textGap;
-	const int moneyWidth = CsTextWidth( moneyBuffer, numberHeight );
-	const int moneyPanelRight = moneyTextX + moneyWidth + panelPadX;
-	const int moneyPanelTop = panelTop - panelHeight - (int)( 6 * scale );
-	const int moneyTextY = moneyPanelTop + panelPadY;
-	const int moneyIconY = moneyTextY + ( numberHeight - iconSize ) / 2;
+	int moneyTextX = pad + iconSize + textGap;
+	const int defMoneyPanelTop = panelTop - panelHeight - (int)( 6 * scale );
+	int moneyTextY = defMoneyPanelTop + panelPadY;
+	bool moneyCustom = false;
+	const bool hideMoney = CsElementPos( "money", screenWidth, screenHeight, moneyTextX, moneyTextY, moneyCustom );
 
-	g_eng->pfnFillRGBABlend( 0, moneyPanelTop, moneyPanelRight, panelHeight, 0, 0, 0, 165 );
-	CsDrawIcon( s_iconCash, pad, moneyIconY, iconSize, 238, 239, 240, 245 );
-	CsDrawText( moneyBuffer, moneyTextX, moneyTextY, numberHeight, 238, 239, 240, 245 );
+	if ( !hideMoney )
+	{
+		const int moneyWidth = CsTextWidth( moneyBuffer, numberHeight );
+		const int moneyPanelTop = moneyTextY - panelPadY;
+		const int moneyPanelRight = moneyTextX + moneyWidth + panelPadX;
+		const int moneyIconX = moneyTextX - iconSize - textGap;
+		const int moneyIconY = moneyTextY + ( numberHeight - iconSize ) / 2;
+
+		g_eng->pfnFillRGBABlend( moneyIconX - panelPadX, moneyPanelTop, moneyPanelRight - ( moneyIconX - panelPadX ), panelHeight, 0, 0, 0, 165 );
+		CsDrawIcon( s_iconCash, moneyIconX, moneyIconY, iconSize, 238, 239, 240, 245 );
+		CsDrawText( moneyBuffer, moneyTextX, moneyTextY, numberHeight, 238, 239, 240, 245 );
+	}
 	}
 
 	if ( !hideAll && !( g_hideFlags & HIDEHUD_WEAPONS ) && ( g_ammoClip >= 0 || g_ammoReserve >= 0 ) )
@@ -410,34 +526,46 @@ void CsDrawHud()
 		if ( totalWidth > 0 )
 		{
 			const int panelWidth = totalWidth + iconSize + textGap + gap + panelPadX;
-			g_eng->pfnFillRGBABlend( screenWidth - panelWidth, panelTop, panelWidth, panelHeight, 0, 0, 0, 165 );
 
-			int x = screenWidth - panelPadX - iconSize;
-			CsDrawIcon( s_iconAmmo, x, contentBottom - numberHeight + ( numberHeight - iconSize ) / 2, iconSize, 238, 239, 240, 245 );
+			int ammoPanelX = screenWidth - panelWidth;
+			int ammoPanelY = panelTop;
+			bool ammoCustom = false;
+			const bool hideAmmo = CsElementPos( "ammo", screenWidth, screenHeight, ammoPanelX, ammoPanelY, ammoCustom );
 
-			x -= gap;
-
-			if ( reserveBuffer[0] )
+			if ( !hideAmmo )
 			{
-				x -= reserveWidth;
-				CsDrawText( reserveBuffer, x, contentBottom - numberHeight, numberHeight, 210, 214, 220, 235 );
-				x -= dividerGap;
-			}
+				const int ax = ammoPanelX - ( screenWidth - panelWidth );
+				const int ay = ammoPanelY - panelTop;
 
-			if ( clipBuffer[0] && reserveBuffer[0] )
-			{
-				const int dividerHeight = (int)( 14 * scale );
-				const int dividerY = contentBottom - numberHeight + ( numberHeight - dividerHeight ) / 2;
+				g_eng->pfnFillRGBABlend( screenWidth - panelWidth + ax, panelTop + ay, panelWidth, panelHeight, 0, 0, 0, 165 );
 
-				x -= dividerWidth;
-				g_eng->pfnFillRGBABlend( x, dividerY, dividerWidth, dividerHeight, 180, 184, 190, 150 );
-				x -= dividerGap;
-			}
+				int x = screenWidth - panelPadX - iconSize + ax;
+				CsDrawIcon( s_iconAmmo, x, contentBottom - numberHeight + ( numberHeight - iconSize ) / 2 + ay, iconSize, 238, 239, 240, 245 );
 
-			if ( clipBuffer[0] )
-			{
-				x -= clipWidth;
-				CsDrawText( clipBuffer, x, contentBottom - numberHeight, numberHeight, 238, 239, 240, 245 );
+				x -= gap;
+
+				if ( reserveBuffer[0] )
+				{
+					x -= reserveWidth;
+					CsDrawText( reserveBuffer, x, contentBottom - numberHeight + ay, numberHeight, 210, 214, 220, 235 );
+					x -= dividerGap;
+				}
+
+				if ( clipBuffer[0] && reserveBuffer[0] )
+				{
+					const int dividerHeight = (int)( 14 * scale );
+					const int dividerY = contentBottom - numberHeight + ( numberHeight - dividerHeight ) / 2 + ay;
+
+					x -= dividerWidth;
+					g_eng->pfnFillRGBABlend( x, dividerY, dividerWidth, dividerHeight, 180, 184, 190, 150 );
+					x -= dividerGap;
+				}
+
+				if ( clipBuffer[0] )
+				{
+					x -= clipWidth;
+					CsDrawText( clipBuffer, x, contentBottom - numberHeight + ay, numberHeight, 238, 239, 240, 245 );
+				}
 			}
 		}
 	}
@@ -445,20 +573,28 @@ void CsDrawHud()
 	if ( !hideAll && !( g_hideFlags & HIDEHUD_TIMER ) )
 	{
 	const int timerHeight = (int)( 14 * scale );
-	const int timerY = (int)( 6 * scale );
+
+	const CsAxis txAxis = CsReadAxis( CsPeekCvar( "hud_timer_x" ), screenWidth );
+	const CsAxis tyAxis = CsReadAxis( CsPeekCvar( "hud_timer_y" ), screenHeight );
+	const bool hideTimer = txAxis.hide || tyAxis.hide;
+	const bool timerCustom = txAxis.override || tyAxis.override;
+	int timerY = tyAxis.override ? tyAxis.value : (int)( 6 * scale );
+	int timerX = 0;
+	int timerWidth = 0;
 
 	int remaining = -1;
 
 	if ( g_roundTime >= 0 && g_roundStart >= 0.0f )
 		remaining = std::max( 0, static_cast<int>( g_roundTime + g_roundStart - g_eng->GetClientTime() ) );
 
-	if ( remaining >= 0 )
+	if ( remaining >= 0 && !hideTimer )
 	{
 		char timerBuffer[16];
 		std::snprintf( timerBuffer, sizeof( timerBuffer ), "%02d:%02d", remaining / 60, remaining % 60 );
 
-		const int timerWidth = CsTextWidth( timerBuffer, timerHeight );
-		const int timerX = ( screenWidth - timerWidth ) / 2;
+		timerWidth = CsTextWidth( timerBuffer, timerHeight );
+		timerX = txAxis.override ? txAxis.value : ( screenWidth - timerWidth ) / 2;
+
 		const int timerPadX = (int)( 8 * scale );
 		const int timerPadY = (int)( 4 * scale );
 
@@ -501,7 +637,7 @@ void CsDrawHud()
 		}
 	}
 
-	if ( remaining >= 0 && ( ctPlayers > 0 || tPlayers > 0 ) )
+	if ( remaining >= 0 && !hideTimer && ( ctPlayers > 0 || tPlayers > 0 ) )
 	{
 		const int teamIconSize = (int)( 17 * scale );
 		const int sideGap = (int)( 12 * scale );
@@ -528,9 +664,10 @@ void CsDrawHud()
 		const int tAliveWidth = CsTextWidth( tAliveBuffer, aliveHeight );
 
 		const int totalWidth = teamIconSize + teamGap + ctScoreWidth + sideGap + tScoreWidth + teamGap + teamIconSize;
-		const int ctIconX = ( screenWidth - totalWidth ) / 2;
+		const int stripCenterX = timerCustom ? ( timerX + timerWidth / 2 ) : ( screenWidth / 2 );
+		const int ctIconX = stripCenterX - totalWidth / 2;
 		const int ctScoreX = ctIconX + teamIconSize + teamGap;
-		const int tIconX = screenWidth - ctIconX - teamIconSize;
+		const int tIconX = ctIconX + totalWidth - teamIconSize;
 		const int tScoreX = tIconX - teamGap - tScoreWidth;
 
 		CsDrawIcon( s_iconTeamCT, ctIconX, teamY, teamIconSize, 255, 255, 255, 255 );
