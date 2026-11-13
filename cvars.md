@@ -74,6 +74,14 @@ Replaces the classic center-screen messages ("Terrorist Win", "Bomb Planted", ..
 | `hud_centerprint_bgcolor` | `"0 0 0"` | `"r g b"` | Background panel color. |
 | `hud_centerprint_bgalpha` | `140` | `0-255` | Background panel opacity. |
 
+## Thirdperson
+
+Normally the `thirdperson` / `firstperson` commands are blocked in multiplayer servers (`GetMaxClients() > 1`). The plugin unlocks them. `firstperson` always works.
+
+| Cvar | Default | Values | Description |
+| --- | --- | --- | --- |
+| `hud_thirdperson` | `1` | `0`, `1` | `1` allows `thirdperson` in multiplayer. Set to `0` to restore the stock behavior (singleplayer only). |
+
 ## Killfade
 
 A `ScreenFade`-based screen color effect. It only triggers on local player kills; it does not trigger on suicide, teamkill, or non-player kills. It works independently.
@@ -119,6 +127,8 @@ hud_killfade_fxtime 0.25
 hud_killfade_holdtime 0.12
 hud_killfade_color "255 255 255"
 hud_killfade_alpha 70
+
+hud_thirdperson 1
 
 hud_centerprint 1
 hud_centerprint_fadein 0.25

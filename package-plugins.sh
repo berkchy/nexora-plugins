@@ -41,7 +41,7 @@ _build_one()
 		TOOLCHAIN=""
 	fi
 
-	for p in centerprint hudpos killfade killfeed scoreboard2; do
+	for p in centerprint hudpos thirdperson killfade killfeed scoreboard2; do
 		cmake -S "$HERE/$p" -B "$WORK/$p" $TOOLCHAIN -DCMAKE_BUILD_TYPE=Release
 		cmake --build "$WORK/$p"
 		cp "$WORK/$p/lib${p}_nexora_${_tag}.so" "$STAGE/lib/$_abi/lib${p}_nexora_${_tag}.so"
@@ -51,6 +51,7 @@ _build_one()
 {"version":"$VER","game":"cs16client","abi":"$_abi","entries":[
 {"source":"lib/$_abi/libcenterprint_nexora_${_tag}.so","target":"lib/$_abi/libcenterprint_nexora_${_tag}.so","method":"STORED","required":true,"description":"centerprint"},
 {"source":"lib/$_abi/libhudpos_nexora_${_tag}.so","target":"lib/$_abi/libhudpos_nexora_${_tag}.so","method":"STORED","required":true,"description":"hudpos"},
+{"source":"lib/$_abi/libthirdperson_nexora_${_tag}.so","target":"lib/$_abi/libthirdperson_nexora_${_tag}.so","method":"STORED","required":true,"description":"thirdperson"},
 {"source":"lib/$_abi/libkillfade_nexora_${_tag}.so","target":"lib/$_abi/libkillfade_nexora_${_tag}.so","method":"STORED","required":true,"description":"killfade"},
 {"source":"lib/$_abi/libkillfeed_nexora_${_tag}.so","target":"lib/$_abi/libkillfeed_nexora_${_tag}.so","method":"STORED","required":true,"description":"killfeed"},
 {"source":"lib/$_abi/libscoreboard2_nexora_${_tag}.so","target":"lib/$_abi/libscoreboard2_nexora_${_tag}.so","method":"STORED","required":true,"description":"scoreboard2"}
