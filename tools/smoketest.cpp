@@ -316,7 +316,7 @@ static const char *HookName( int id )
 		"PLAYER_MOVE_INIT", "PLAYER_MOVE", "CREATE_MOVE", "FRAME",
 		"PAINT_HUD", "UPDATE_CLIENT_DATA", "PROCESS_PLAYER_STATE", "ADD_ENTITY",
 		"CREATE_ENTITIES", "IN_COMMANDS", "DEATHMSG", "HUD_ELEMENT_DRAW",
-		"NETMSG", "SCOREBOARD_TOGGLE", "AMMO_INFO", "CENTERPRINT", "HUD_ELEMENT_POS", "THIRDPERSON",
+		"NETMSG", "SCOREBOARD_TOGGLE", "AMMO_INFO", "CENTERPRINT", "HUD_ELEMENT_POS", "THIRDPERSON", "CHAT",
 	};
 
 	return ( id >= 0 && id < NEXORA_HOOK_COUNT ) ? names[id] : "?";
@@ -527,6 +527,11 @@ static void TestPlugin( const char *path )
 	nexora_thirdperson_args_t thirdpersonArgs { 0 };
 	FireHook( NEXORA_HOOK_THIRDPERSON, &thirdpersonArgs );
 	std::printf( "  thirdperson unlock: allow=%d\n", thirdpersonArgs.allow );
+
+	// chat line arrival -> veto + draw tick
+	nexora_chat_args_t chatArgs { const_cast<char *>( "\x03(Counter-Terrorist) smoke : \x01hello world" ), 2, g_mockTime, 1 };
+	FireHook( NEXORA_HOOK_CHAT, &chatArgs );
+	std::printf( "  chatfx veto: allow=%d\n", chatArgs.allow );
 
 	// center print message with veto
 	nexora_centerprint_args_t centerprintArgs { const_cast<char *>( "TERRORISTS WIN" ), 1 };

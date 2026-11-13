@@ -11,6 +11,7 @@ include/nexora/nexora_plugin.h   # vendored ABI header (sync from cs16-client/pu
 centerprint/                      # fade-in/fade-out center print messages
 hudpos/                           # HUD element position customization (hud_<element>_x/y)
 thirdperson/                      # thirdperson command unlocked for multiplayer
+chatfx/                           # chat panel: position, scale, 4 open/close animations
 killfade/                        # ScreenFade effect on local kills
 killfeed/                        # CS:GO-style kill feed (replaces classic death notice)
 scoreboard2/                     # CS:GO stacked team scoreboard
@@ -45,7 +46,7 @@ cmake -S killfeed -B killfeed/build
 cmake --build killfeed/build
 ```
 
-Outputs: `libcenterprint_nexora_<abi>.so`, `libhudpos_nexora_<abi>.so`, `libthirdperson_nexora_<abi>.so`, `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscoreboard2_nexora_<abi>.so` (`arm64`, `arm`, `x86`, `x86_64`).
+Outputs: `libcenterprint_nexora_<abi>.so`, `libhudpos_nexora_<abi>.so`, `libthirdperson_nexora_<abi>.so`, `libchatfx_nexora_<abi>.so`, `libkillfade_nexora_<abi>.so`, `libkillfeed_nexora_<abi>.so`, `libscoreboard2_nexora_<abi>.so` (`arm64`, `arm`, `x86`, `x86_64`).
 
 ## Testing
 
@@ -53,11 +54,11 @@ Outputs: `libcenterprint_nexora_<abi>.so`, `libhudpos_nexora_<abi>.so`, `libthir
 
 ```sh
 cmake -S killfade -B killfade/build && cmake --build killfade/build
-# repeat for centerprint, hudpos, thirdperson, killfeed, scoreboard2
+# repeat for centerprint, hudpos, thirdperson, chatfx, killfeed, scoreboard2
 SDK=$PWD/sdk/include && INC=$PWD/include && \
 g++ -std=gnu++17 -o /tmp/smoketest tools/smoketest.cpp -I$INC \
   $(for d in engine common public pm_shared game_shared dlls cl_dll cl_dll/include; do printf -- "-I$SDK/$d "; done) -ldl
-/tmp/smoketest centerprint/build/*.so hudpos/build/*.so thirdperson/build/*.so killfade/build/*.so killfeed/build/*.so scoreboard2/build/*.so
+/tmp/smoketest centerprint/build/*.so hudpos/build/*.so thirdperson/build/*.so chatfx/build/*.so killfade/build/*.so killfeed/build/*.so scoreboard2/build/*.so
 ```
 
 ## Shipping (Nexora store)

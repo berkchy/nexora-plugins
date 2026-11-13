@@ -74,6 +74,30 @@ Replaces the classic center-screen messages ("Terrorist Win", "Bomb Planted", ..
 | `hud_centerprint_bgcolor` | `"0 0 0"` | `"r g b"` | Background panel color. |
 | `hud_centerprint_bgalpha` | `140` | `0-255` | Background panel opacity. |
 
+## Chat (chatfx)
+
+Replaces the classic chat with a customizable chat panel: position, scale, fade/slide/scale/bounce open-close animations. It intercepts the SayText message; `hud_chatfx_enable 0` keeps the classic chat. Lines are tinted with the speaker's team color, exactly like the stock chat.
+
+| Cvar | Default | Values | Description |
+| --- | --- | --- | --- |
+| `hud_chatfx_enable` | `1` | `0`, `1` | `1` uses the chatfx panel. `0` keeps the stock chat. |
+| `hud_chatfx_x` | `auto` | pixels, `%`, `auto` | Left edge (absolute px, negative = from right edge, `NN%` = fraction of screen width). |
+| `hud_chatfx_y` | `auto` | pixels, `%`, `auto` | Top edge. |
+| `hud_chatfx_scale` | `1.0` | `0.5 - 3.0` | Text size multiplier. |
+| `hud_chatfx_anim` | `fade` | `fade`, `slide`, `scale`, `bounce` | Open/close animation mode. `slide` slides in from the left; `scale` zooms in; `bounce` pops in with overshoot. |
+| `hud_chatfx_anim_open` | `0.25` | seconds | Open animation duration. |
+| `hud_chatfx_anim_close` | `0.2` | seconds | Close animation duration. |
+| `hud_chatfx_lines` | `5` | `1 - 16` | Visible line count. |
+| `hud_chatfx_holdtime` | `5` | seconds | How long a line stays on screen. |
+| `hud_chatfx_linespacing` | `0` | pixels | Extra gap between lines. |
+| `hud_chatfx_pad` | `6` | pixels | Inner panel padding. |
+| `hud_chatfx_bg` | `1` | `0`, `1` | Draw background panel. |
+| `hud_chatfx_bgcolor` | `"0 0 0"` | `"r g b"` | Panel color. |
+| `hud_chatfx_bgalpha` | `140` | `0 - 255` | Panel opacity. |
+| `hud_chatfx_color` | `"255 178 0"` | `"r g b"` | Default text color (`\x01` lines, e.g. server messages). |
+| `hud_chatfx_text_alpha` | `235` | `0 - 255` | Text opacity. |
+| `hud_chatfx_font` | `/system/fonts/RobotoMono-Regular.ttf` | path | TTF used for the panel text. If the file can't be loaded, falls back to the console font (fixed size). |
+
 ## Thirdperson
 
 Normally the `thirdperson` / `firstperson` commands are blocked in multiplayer servers (`GetMaxClients() > 1`). The plugin unlocks them. `firstperson` always works.
@@ -129,6 +153,24 @@ hud_killfade_color "255 255 255"
 hud_killfade_alpha 70
 
 hud_thirdperson 1
+
+hud_chatfx_enable 1
+hud_chatfx_x 8
+hud_chatfx_y auto
+hud_chatfx_scale 1
+hud_chatfx_anim fade
+hud_chatfx_anim_open 0.25
+hud_chatfx_anim_close 0.2
+hud_chatfx_lines 5
+hud_chatfx_holdtime 5
+hud_chatfx_linespacing 0
+hud_chatfx_pad 6
+hud_chatfx_bg 1
+hud_chatfx_bgcolor "0 0 0"
+hud_chatfx_bgalpha 140
+hud_chatfx_color "255 178 0"
+hud_chatfx_text_alpha 235
+hud_chatfx_font "/system/fonts/RobotoMono-Regular.ttf"
 
 hud_centerprint 1
 hud_centerprint_fadein 0.25
